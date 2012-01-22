@@ -2,6 +2,9 @@ import urllib2
 import json
 import pprint
 
+# Make sure you type press Ctrl+C after a few seconds, because this may loop foor a while
+
+
 # This example request includes an optional API key which you will need to
 # remove or replace with your own key.
 # Read more about why it's useful to have an API key.
