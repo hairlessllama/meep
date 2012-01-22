@@ -13,21 +13,43 @@ import pprint
 # server-side traffic from traffic which doesn't come from an end-user.
 z=1
 num_queries = 10*4 
-url = ('https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q="C.+Titus+Brown"+site:www.cse.msu.edursz=8&key=AIzaSyBrSXCL8WHXPrgLhmgwMYo6no-od8VLsbo&userip=USERS-IP-ADDRESS')
-for start in range(0, num_queries, 4):
-    
-    request = urllib2.Request(
-        url, None, )
-    response = urllib2.urlopen(request)
+url = ('https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q="C.+Titus+Brown"+site:www.cse.msu.edu&rsz=8&key=AIzaSyBrSXCL8WHXPrgLhmgwMYo6no-od8VLsbo&userip=USERS-IP-ADDRESS')
 
-    # Process the JSON string.
-    results = json.load(response)
-    # now have some fun with the results...
 
-    #for i in results.items:print i
-    pprint.PrettyPrinter(indent=0).pprint(results[u'responseData'][u'results'])
-    z=z+1
-    print "z is:" , z
+request = urllib2.Request(
+    url, None, {'Referer': 'www.msu.edu'})
+response = urllib2.urlopen(request)
+
+# Process the JSON string.
+results = json.load(response)
+# now have some fun with the results...
+
+#for i in results.items:print i
+
+x= results[u'responseData'][u'results']
+for i in x:
+    print i['title'] + ": " + i['url'] + ": " + i['content']
+    z= z+1
+    print 'this is z: ', z
+
+
+#This is an attempt to have the google search api show more than 8 results, but I am not quite sure if it actually does or not haha.
+##for start in range(0, num_queries, 4):
+##    
+##    request = urllib2.Request(
+##        url, None, )
+##    response = urllib2.urlopen(request)
+##
+##    # Process the JSON string.
+##    results = json.load(response)
+##    # now have some fun with the results...
+##
+##    #for i in results.items:print i
+##    pprint.PrettyPrinter(indent=0).pprint(results[u'responseData'][u'results'])
+##    z=z+1
+##    print "z is:" , z
+
+
 
 ##    x= results[u'responseData'][u'results']
 ##    for i in x:
