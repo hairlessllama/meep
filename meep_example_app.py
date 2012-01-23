@@ -106,11 +106,11 @@ class MeepExampleApp(object):
         form = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ)
 
         id_number = form['id_num'].value
-        print "form"
-        print (id,)
+        #print "form"
+        #print (id,)
         id_number = int(id_number)
         
-        meeplib.delete_message(id_number)
+        meeplib.delete_message(meeplib.get_message(id_number))
 
         headers = [('Content-type', 'text/html')]
         headers.append(('Location', '/m/list'))
