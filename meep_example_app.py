@@ -46,10 +46,9 @@ class MeepExampleApp(object):
         #if loggedIn:
         #print get_user(username)
         username = 'test'
-        return ["""you are logged in as user: %s<p><a href='/m/add'>Add a message</a><p><a href='/login'>Log in</a><p><a href='/logout'>Log out</a><p><a href='/m/list'>Show messages</a>""" % meeplib.get_current_user()]
-        #else:
-       # return ["""you are not logged in<p><a href='/m/add'>Add a message</a><p><a href='/login'>Log in</a><p><a href='/logout'>Log out</a><p><a href='/m/list'>Show messages</a>"""]
-
+        #return ["""you are logged in as user: %s<p><a href='/m/add'>Add a message</a><p><a href='/login'>Log in</a><p><a href='/logout'>Log out</a><p><a href='/m/list'>Show messages</a>""" % meeplib.get_current_user()]
+        return ["""you are logged in as user: %s<p><a href='/m/add'>Add a message</a><p><a href='/create_user'>Create a New User</a><p><a href='/login'>Log in</a><p><a href='/logout'>Log out</a><p><a href='/m/list'>Show messages</a>""" % meeplib.get_current_user()]
+        
     def login(self, environ, start_response):
         print "login test 1"
         headers = [('Content-type', 'text/html')]
@@ -119,7 +118,43 @@ class MeepExampleApp(object):
         
         return ["""Login Failed. Please Try Again.<p><p><p><a href='/'>Index</a>"""]
     
-      
+
+    def create_user(self, environ, start_response):
+        headers = [('Content-type', 'text/html')]
+        
+        start_response("200 OK", headers)
+       
+        return """<form action='create_user_action' method='POST'>Username: <input type='text' name='username'><br>Password:<input type='text' name='password'><br><input type='Submit'></form>"""
+       
+        
+    def create_user_action(self, environ, start_response):
+        print environ['wsgi.input']
+        form = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ)
+        
+                
+        try:
+            username = form['username'].value
+        except KeyError:
+            username = None
+
+        try:
+            password = form['password'].value
+        except KeyError:
+            password = None
+
+        u = meeplib.User(username, password)
+
+        # send back a redirect to '/'
+        k = 'Location'
+        v = '/'
+        headers = [('Content-type', 'text/html')]
+        headers.append((k, v))
+        start_response('302 Found', headers)
+        
+        return "no such content"
+
+        
+        
 
     def logout(self, environ, start_response):
         # does nothing
@@ -197,8 +232,8 @@ class MeepExampleApp(object):
         # store url/function matches in call_dict
         call_dict = { '/': self.index,
                       #'/home': self.home,
-                      #'/new_user': self.new_user,
-                      #'/new_user_action': self.new_user_action,
+                      '/create_user': self.create_user,
+                      '/create_user_action': self.create_user_action,
                       '/login': self.login,
                       '/login_action': self.login_action,
                       '/login_failed': self.login_failed,
