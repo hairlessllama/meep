@@ -84,7 +84,7 @@ class MeepExampleApp(object):
             
             for r in replies:
                 if r.id_num ==  m.id:
-                    s.append('reply id: %d<p>' % (r.id))
+                    s.append('title: RE:%s<p>' % (m.title))
                     s.append('reply: %s<p>' % (r.reply))
                     s.append('author: %s<p>' % (r.author.username))
                     s.append(
@@ -93,8 +93,6 @@ class MeepExampleApp(object):
                         <input type='submit' value="Delete Reply">
                         </form>
                      """ % (r.id))
-                    s.append('<hr>')
-                else:
                     s.append('<hr>')
 
         s.append("<a href='../../'>index</a>")
