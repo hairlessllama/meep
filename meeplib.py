@@ -54,8 +54,8 @@ _current_user = ''
 def _get_next_user_id():
     if _users:
         #print _users.keys()
-        return len(_users)
-        #return max(_users.keys()) + 1
+ 
+        return max(_user_ids.keys()) + 1
         
     return 0
 
