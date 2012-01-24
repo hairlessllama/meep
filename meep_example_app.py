@@ -61,6 +61,12 @@ class MeepExampleApp(object):
             s.append('title: %s<p>' % (m.title))
             s.append('message: %s<p>' % (m.post))
             s.append('author: %s<p>' % (m.author.username))
+            s.append(
+                     """<form action='delete_action' method='GET'>
+                        <input type='hidden' value='%d' name='id'>
+                        <input type='submit' value="Delete Message">
+                        </form>
+                     """ % (m.id))
             s.append('<hr>')
 
         s.append("<a href='../../'>index</a>")
