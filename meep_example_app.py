@@ -20,7 +20,13 @@ class MeepExampleApp(object):
 
         username = 'test'
 
-        return ["""you are logged in as user: %s.<p><a href='/m/add'>Add a message</a><p><a href='/login'>Log in</a><p><a href='/logout'>Log out</a><p><a href='/m/list'>Show messages</a>""" % (username,)]
+        return ["""
+                   you are logged in as user: %s.
+                   <p><a href='/m/add'>Add a message</a>
+                   <p><a href='/login'>Log in</a>
+                   <p><a href='/logout'>Log out</a>
+                   <p><a href='/m/list'>Show messages</a>
+                """ % (username,)]
 
     def login(self, environ, start_response):
         # hard code the username for now; this should come from Web input!
@@ -54,6 +60,7 @@ class MeepExampleApp(object):
 
     def list_messages(self, environ, start_response):
         messages = meeplib.get_all_messages()
+        replies = meeplib.get_all_replies()
 
         s = []
         for m in messages:
@@ -62,13 +69,33 @@ class MeepExampleApp(object):
             s.append('message: %s<p>' % (m.post))
             s.append('author: %s<p>' % (m.author.username))
             s.append(
-                     """<form action='delete_action' method='GET'>
+                     """<form action='add_reply' method='GET'>
+                        <input type='hidden' value='%d' name='id_num'>
+                        <input type='submit' value="Reply to Message">
+                        </form>
+                     """ % (m.id))
+            s.append(
+                     """<form action='delete_message_action' method='GET'>
                         <input type='hidden' value='%d' name='id_num'>
                         <input type='submit' value="Delete Message">
                         </form>
                      """ % (m.id))
             print m.id
-            s.append('<hr>')
+            
+            for r in replies:
+                if r.id_num ==  m.id:
+                    s.append('reply id: %d<p>' % (r.id))
+                    s.append('reply: %s<p>' % (r.reply))
+                    s.append('author: %s<p>' % (r.author.username))
+                    s.append(
+                     """<form action='delete_reply_action' method='GET'>
+                        <input type='hidden' value='%d' name='id_num'>
+                        <input type='submit' value="Delete Reply">
+                        </form>
+                     """ % (r.id))
+                    s.append('<hr>')
+                else:
+                    s.append('<hr>')
 
         s.append("<a href='../../'>index</a>")
             
@@ -82,7 +109,11 @@ class MeepExampleApp(object):
         
         start_response("200 OK", headers)
 
-        return """<form action='add_action' method='POST'>Title: <input type='text' name='title'><br>Message:<input type='text' name='message'><br><input type='submit'></form>"""
+        return """<form action='add_message_action' method='POST'>
+                  Title: <input type='text' name='title'><br>
+                  Message: <input type='text' name='message'>
+                  <br><input type='submit'></form>
+               """
 
     def add_message_action(self, environ, start_response):
         print environ['wsgi.input']
@@ -105,10 +136,10 @@ class MeepExampleApp(object):
         print environ['wsgi.input']
         form = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ)
 
-        id_number = form['id_num'].value
+        id_num = form['id_num'].value
         #print "form"
         #print (id,)
-        id_number = int(id_number)
+        id_number = int(id_num)
         
         meeplib.delete_message(meeplib.get_message(id_number))
 
@@ -116,6 +147,56 @@ class MeepExampleApp(object):
         headers.append(('Location', '/m/list'))
         start_response("302 Found", headers)
         return ["message delete"]
+
+    def delete_reply_action(self, environ, start_response):
+        print environ['wsgi.input']
+        form = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ)
+
+        id_num = form['id_num'].value
+        #print "form"
+        #print (id,)
+        id_number = int(id_num)
+        
+        meeplib.delete_reply(meeplib.get_reply(id_number))
+
+        headers = [('Content-type', 'text/html')]
+        headers.append(('Location', '/m/list'))
+        start_response("302 Found", headers)
+        return ["message delete"]
+
+    def add_reply(self, environ, start_response):
+        print environ['wsgi.input']
+        form = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ)
+        headers = [('Content-type', 'text/html')]
+
+        id_num = form['id_num'].value
+        id_num = int(id_num)
+        
+        start_response("200 OK", headers)
+
+        return """<form action='add_reply_action' method='POST'>
+                  Reply: <input type='text' name='reply'>
+                  <input type='hidden' value='%d' name='id_num'>
+                  <br><input type='submit'></form>
+               """ % id_num
+
+    def add_reply_action(self, environ, start_response):
+        print environ['wsgi.input']
+        form = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ)
+
+        id_num = form['id_num'].value
+        id_num = int(id_num)
+        reply = form['reply'].value
+        
+        username = 'test'
+        user = meeplib.get_user(username)
+        
+        new_reply = meeplib.Reply(id_num, reply, user)
+
+        headers = [('Content-type', 'text/html')]
+        headers.append(('Location', '/m/list'))
+        start_response("302 Found", headers)
+        return ["reply added"]
     
     def __call__(self, environ, start_response):
         # store url/function matches in call_dict
@@ -124,8 +205,11 @@ class MeepExampleApp(object):
                       '/logout': self.logout,
                       '/m/list': self.list_messages,
                       '/m/add': self.add_message,
-                      '/m/add_action': self.add_message_action,
-                      '/m/delete_action': self.delete_message_action
+                      '/m/add_message_action': self.add_message_action,
+                      '/m/delete_message_action': self.delete_message_action,
+                      '/m/add_reply': self.add_reply,
+                      '/m/add_reply_action': self.add_reply_action,
+                      '/m/delete_reply_action': self.delete_reply_action
                       }
 
         # see if the URL is in 'call_dict'; if it is, call that function.
@@ -146,4 +230,4 @@ class MeepExampleApp(object):
             start_response(status, [('Content-type', 'text/html')])
             return [x]
 
-#updated 11/18/2011
+#updated 1/24/2012
