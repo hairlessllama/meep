@@ -72,14 +72,15 @@ def _reset():
 
 class Message(object):
     """
-    Simple "Message" object, containing title/post/author.
+    Simple "Message" object, containing title/post/rank/author.
 
     'author' must be an object of type 'User'.
     
     """
-    def __init__(self, title, post, author):
+    def __init__(self, title, post, rank, author):
         self.title = title
         self.post = post
+        self.rank = rank
 
         assert isinstance(author, User)
         self.author = author
@@ -98,6 +99,12 @@ def get_all_messages(sort_by='id'):
 def get_message(id):
     return _messages[id]
 
+def inc_msg_rank(msg):
+    _messages[msg.id].rank += 1
+
+def dec_msg_rank(msg):
+    _messages[msg.id].rank -= 1
+
 def delete_message(msg):
     assert isinstance(msg, Message)
     del _messages[msg.id]
@@ -109,11 +116,10 @@ class Reply(object):
     'author' must be an object of type 'User'.
     
     """
-    def __init__(self, id_num, reply, author):
+    def __init__(self, id_num, reply, rank, author):
         self.id_num = id_num
         self.reply = reply
-        print reply
-        print id_num
+        self.rank = rank
 
         assert isinstance(author, User)
         self.author = author
@@ -132,6 +138,12 @@ def get_all_replies(sort_by='id'):
 
 def get_reply(id):
     return _replies[id]
+
+def inc_reply_rank(reply):
+    _replies[reply.id].rank += 1
+
+def dec_reply_rank(reply):
+    _replies[reply.id].rank -= 1
 
 def delete_reply(reply):
     assert isinstance(reply, Reply)
