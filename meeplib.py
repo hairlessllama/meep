@@ -24,7 +24,8 @@ Functions and classes:
 """
 
 __all__ = ['Message', 'get_all_messages', 'get_message', 'delete_message',
-           'User', 'get_user', 'get_all_users', 'delete_user']
+           'User', 'set_current_user', 'get_current_user', 'get_user',
+           'get_all_users', 'delete_user', 'is_user']
 
 ###
 # internal data structures & functions; please don't access these
@@ -53,20 +54,28 @@ _user_ids = {}
 # a dictionary, storing all users by username
 _users = {}
 
+#a string that holds the username of the current logged in user
+_current_user = ''
+
+
 def _get_next_user_id():
     if _users:
-        return max(_users.keys()) + 1
+        #print _users.keys()
+ 
+        return max(_user_ids.keys()) + 1
+        
     return 0
 
 def _reset():
     """
     Clean out all persistent data structures, for testing purposes.
     """
-    global _messages, _users, _user_ids, _replies
+    global _messages, _users, _user_ids, _replies, current_user
     _messages = {}
     _users = {}
     _user_ids = {}
     _replies = {}
+    _current_user = ''
 
 ###
 
@@ -155,15 +164,31 @@ class User(object):
     def __init__(self, username, password):
         self.username = username
         self.password = password
-
+        print "user test 1"
         self._save_user()
 
     def _save_user(self):
+        print "save user test2"
         self.id = _get_next_user_id()
+        print "save user test3"
 
         # register new user ID with the users list:
         _user_ids[self.id] = self
         _users[self.username] = self
+
+def set_current_user(username):
+    print "----"
+    print username
+    global _current_user
+    _current_user = username
+    print _current_user
+    print "-----"
+
+def get_current_user():
+    print "xxxx"
+    print _current_user
+    print "xxxx"
+    return _current_user
 
 def get_user(username):
     return _users.get(username)         # return None if no such user
@@ -175,4 +200,23 @@ def delete_user(user):
     del _users[user.username]
     del _user_ids[user.id]
 
-#updated 1/24/2012
+def is_user(username, password):
+    try:
+        thisUser = get_user(username)
+        #print 'success1'
+    except NameError:
+        thisUser = None
+        #print 'fail1'
+
+    #print thisUser.password
+    #print password
+    if thisUser is not None:
+        if str(thisUser.password) == str(password):
+            #print "true"
+            return True
+        #print "false1"
+    else:
+        #print "false2"
+        return False
+
+    #updated 1/25/2012
