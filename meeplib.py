@@ -34,10 +34,19 @@ __all__ = ['Message', 'get_all_messages', 'get_message', 'delete_message',
 # a dictionary, storing all messages by a (unique, int) ID -> Message object.
 _messages = {}
 
+_replies = {}
+
 def _get_next_message_id():
     if _messages:
         return max(_messages.keys()) + 1
     return 0
+
+def _get_next_reply_id():
+    if _replies:
+        return max(_replies.keys()) + 1
+    return 0
+
+
 
 # a dictionary, storing all users by a (unique, int) ID -> User object.
 _user_ids = {}
@@ -54,10 +63,11 @@ def _reset():
     """
     Clean out all persistent data structures, for testing purposes.
     """
-    global _messages, _users, _user_ids
+    global _messages, _users, _user_ids, _replies
     _messages = {}
     _users = {}
     _user_ids = {}
+    _replies = {}
 
 ###
 
@@ -83,15 +93,50 @@ class Message(object):
         # register this new message with the messages list:
         _messages[self.id] = self
 
+
+class Reply(object):
+    """
+    Simple "Message" object, containing title/post/author.
+
+    'author' must be an object of type 'User'.
+    
+    """
+    def __init__(self, r_id, reply, author):
+        self.r_id = r_id
+        self.reply = reply
+
+        assert isinstance(author, User)
+        self.author = author
+
+        self._save_reply()
+
+    def _save_reply(self):
+        self.id = _get_next_reply_id()
+        
+        # register this new message with the messages list:
+        _replies[self.id] = self
+
+
 def get_all_messages(sort_by='id'):
     return _messages.values()
+
+def get_all_replies(sort_by='id'):
+    return _replies.values()
+
 
 def get_message(id):
     return _messages[id]
 
+def get_reply(id):
+    return _replies[id]
+
 def delete_message(msg):
     assert isinstance(msg, Message)
     del _messages[msg.id]
+
+def delete_reply(reply):
+    assert isinstance(reply, Reply)
+    del _replies[reply.id]
 
 ###
 
