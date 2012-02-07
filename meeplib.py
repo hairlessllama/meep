@@ -24,26 +24,26 @@ Functions and classes:
 """
 
 __all__ = ['Message', 'get_all_messages', 'get_message', 'delete_message',
-           'User', 'set_current_user', 'get_current_user', 'get_user',
-           'get_all_users', 'delete_user', 'is_user']
+           'User', 'get_user', 'get_all_users', 'delete_user', 'Thread']
 
 ###
 # internal data structures & functions; please don't access these
 # directly from outside the module.  Note, I'm not responsible for
 # what happens to you if you do access them directly.  CTB
 
+
+# a string, stores the current user that is logged on
+_curr_user = []
+
 # a dictionary, storing all messages by a (unique, int) ID -> Message object.
 _messages = {}
-_replies = {}
 
-def _get_next_message_id():
-    if _messages:
-        return max(_messages.keys()) + 1
-    return 0
+# a dictionary, storing all threads by a (unique, int) ID -> Thread object.
+_threads = {}
 
-def _get_next_reply_id():
-    if _replies:
-        return max(_replies.keys()) + 1
+def _get_next_thread_id():
+    if _threads:
+        return max(_threads.keys()) + 1
     return 0
 
 # a dictionary, storing all users by a (unique, int) ID -> User object.
@@ -52,175 +52,113 @@ _user_ids = {}
 # a dictionary, storing all users by username
 _users = {}
 
-#a string that holds the username of the current logged in user
-_current_user = ''
-
-
 def _get_next_user_id():
     if _users:
-        #print _users.keys()
- 
-        return max(_user_ids.keys()) + 1
-        
+        return int(max(_user_ids.keys())) + 1
     return 0
 
 def _reset():
     """
     Clean out all persistent data structures, for testing purposes.
     """
-
-    global _messages, _users, _user_ids, _replies, current_user
+    global _messages, _users, _user_ids, _curr_user
     _messages = {}
     _users = {}
     _user_ids = {}
-    _replies = {}
-    _current_user = ''
-
+    _curr_user = []
 
 ###
 
 class Message(object):
-    """
-    Simple "Message" object, containing title/post/rank/author.
-
-    'author' must be an object of type 'User'.
-    
-    """
-    def __init__(self, title, post, rank, author):
-        self.title = title
-        self.post = post
-        self.rank = rank
-
-        assert isinstance(author, User)
-        self.author = author
-
-        self._save_message()
-
-    def _save_message(self):
-        self.id = _get_next_message_id()
-        
-        # register this new message with the messages list:
-        _messages[self.id] = self
-
-
-class Reply(object):
     """
     Simple "Message" object, containing title/post/author.
 
     'author' must be an object of type 'User'.
     
     """
-    def __init__(self, r_id, reply, author):
-        self.r_id = r_id
-        self.reply = reply
+    def __init__(self, post, author):
+        self.post = post
+        # is later reassigned by Thread
+        self.id = 0
 
         assert isinstance(author, User)
         self.author = author
 
-        self._save_reply()
+def get_all_threads(sort_by='id'):
+    return _threads.values()
 
-    def _save_reply(self):
-        self.id = _get_next_reply_id()
-        
-        # register this new message with the messages list:
-        _replies[self.id] = self
-
-
-def get_all_messages(sort_by='id'):
-    return _messages.values()
-
-def get_all_replies(sort_by='id'):
-    return _replies.values()
-
-
-def get_message(id):
-    return _messages[id]
-
-def get_reply(id):
-    return _replies[id]
-
-def inc_msg_rank(msg):
-    _messages[msg.id].rank += 1
-
-def dec_msg_rank(msg):
-    _messages[msg.id].rank -= 1
+def get_thread(id):
+    return _threads[id]
 
 def delete_message(msg):
     assert isinstance(msg, Message)
     del _messages[msg.id]
 
-
-class Reply(object):
-    """
-    Simple "Reply" object, containing Post ID number/reply/author.
-
-    'author' must be an object of type 'User'.
-    
-    """
-    def __init__(self, id_num, reply, rank, author):
-        self.id_num = id_num
-        self.reply = reply
-        self.rank = rank
-
-        assert isinstance(author, User)
-        self.author = author
-
-        self._save_reply()
-
-    def _save_reply(self):
-        self.id = _get_next_reply_id()
-        print id
-        
-        # register this new message with the messages list:
-        _replies[self.id] = self
-
-def get_all_replies(sort_by='id'):
-    return _replies.values()
-
-def get_reply(id):
-    return _replies[id]
-
-def inc_reply_rank(reply):
-    _replies[reply.id].rank += 1
-
-def dec_reply_rank(reply):
-    _replies[reply.id].rank -= 1
-
-def delete_reply(reply):
-    assert isinstance(reply, Reply)
-    del _replies[reply.id]
-
 ###
+
+class Thread(object):
+    """
+    Thread object, consisting of a simple dictionary of Message objects.
+    Allows users to add posts to the dictionary.
+    New messages must be of an object of type "Message".
+    """
+
+    def __init__(self, title):
+        # a dictionary, storing all messages by a (unique, int) ID -> Message object.
+        self.posts = {}
+        self.save_thread()
+        self.title = title
+
+    def save_thread(self):
+        self.id = _get_next_thread_id()
+        _threads[self.id] = self
+
+    def add_post(self, post):
+        assert isinstance(post, Message)
+        post.id = self.get_next_post_id()
+        self.posts[post.id] = post
+        
+    def delete_post(self, post):
+        assert isinstance(post, Message)
+        del self.posts[post.id]
+        # if there are no more posts in self.posts, delete the self Thread object and the reference to the thread in _threads
+        if not self.posts:
+            del _threads[self.id]
+            del self
+            
+    def get_post(self, id):
+        return self.posts[id]
+
+    def get_next_post_id(self):
+        if self.posts:
+            return max(self.posts.keys()) + 1
+        return 0
+
+    def get_all_posts(self, sort_by = 'id'):
+        return self.posts.values()
 
 class User(object):
     def __init__(self, username, password):
         self.username = username
         self.password = password
-        print "user test 1"
+
         self._save_user()
 
     def _save_user(self):
-        print "save user test2"
         self.id = _get_next_user_id()
-        print "save user test3"
 
         # register new user ID with the users list:
         _user_ids[self.id] = self
         _users[self.username] = self
 
-def set_current_user(username):
-    print "----"
-    print username
-    global _current_user
-    _current_user = username
-    print _current_user
-    print "-----"
+def set_curr_user(username):
+    _curr_user.insert(0, username)
 
-def get_current_user():
-    print "xxxx"
-    print _current_user
-    print "xxxx"
-    return _current_user
+def get_curr_user():
+    return _curr_user[0]
+
+def delete_curr_user(username):
+    _curr_user.remove(_curr_user.index(0))
 
 def get_user(username):
     return _users.get(username)         # return None if no such user
@@ -232,23 +170,19 @@ def delete_user(user):
     del _users[user.username]
     del _user_ids[user.id]
 
-def is_user(username, password):
+def check_user(username, password):
     try:
-        thisUser = get_user(username)
-        #print 'success1'
+        aUser = get_user(username)
     except NameError:
-        thisUser = None
-        #print 'fail1'
+        aUser = None
+    try:
+        password
+    except NameError:
+        password = None
 
-    #print thisUser.password
-    #print password
-    if thisUser is not None:
-        if str(thisUser.password) == str(password):
-            #print "true"
-            return True
-        #print "false1"
+    if aUser is not None:
+            if aUser.password is not None:
+                if aUser.password == password:
+                    return True
     else:
-        #print "false2"
         return False
-
-    #updated 1/31/2012
