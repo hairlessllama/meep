@@ -26,10 +26,10 @@ class MeepExampleApp(object):
 
         username = 'a Llama'
 
-        return ["""<h1>Welcome!</h1><h2>Please Login or create an account.</h2>
+        return ["""<h1>Welcome <i style = "color:red;">Human</i>!</h1><h2>Please Login or create an account.</h2>
 <form action='login' method='POST'>
-Username: <input type='text' name='username'><br>
-Password:<input type='password' name='password'><br>
+Username:<input type='text' name='username'><br>
+Password:<input type='password' name='password'>&nbsp;<br>
 <input type='submit' value='Login'></form>
 
 <p>Don't have an account? Create a user <a href='/create_user'>here</a>"""]
