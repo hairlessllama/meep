@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+
+
+<p>{% trans "Account was probably successfully activated, but you should worry that it most likely was not." %}</p>
+
+<!-- 
+Log in link is already in the header, not needed to display again.
+<p><a href="{% url auth_login %}">{% trans "Log in" %}</a></p>
+-->
+
+
+{% endblock %}

@@ -1,0 +1,1 @@
+{% load i18n %}{% trans "IMPORTANT: Account Activation Information" %} {{ site.name }}
