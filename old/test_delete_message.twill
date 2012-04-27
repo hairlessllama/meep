@@ -1,0 +1,27 @@
+go http://localhost:8000/
+
+follow "here"
+
+fv 1 username 'Poop'
+fv 1 password 'McPoopin'
+submit
+
+url /
+
+fv 1 username 'Poop'
+fv 1 password 'McPoopin'
+submit
+
+url /home_page
+
+follow "Add a Message"
+
+fv 1 title 'This is The Greatest Title Ever Created in Human History'
+fv 1 message 'The T-Rex had difficulty flossing his teeth, making him prone to tooth decay.'
+submit
+
+fv 1 delete '0'
+submit
+
+follow "Back to the Home Page"
+url /home_page
