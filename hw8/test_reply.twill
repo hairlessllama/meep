@@ -1,0 +1,21 @@
+go http://localhost:8008/
+follow "here"
+
+fv 1 username 'Poop'
+fv 1 password 'McPoopin'
+submit
+
+follow "Create Message"
+
+fv 1 title 'This is The Greatest Title Ever Created in Human History'
+fv 1 message 'The T-Rex had difficulty flossing his teeth, making him prone to tooth decay.'
+submit
+
+fv 1 reply '0'
+submit
+
+fv 1 post 'You just typed this'
+submit
+
+
+find 'You just typed this'

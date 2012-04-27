@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block body %}
+<h2>Create A Message</h2>
+ <form action='add_message' method='POST'>
+  &nbsp; &nbsp; &nbsp; &nbsp;Title:   <input type='text' name='title'><br>
+  Message: <input type='text' name='message'><br>
+  <input type='submit'>
+ </form>
+{% endblock body %}

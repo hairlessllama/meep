@@ -1,0 +1,10 @@
+go http://localhost:8008/
+follow "here"
+
+fv 1 username 'Poop'
+fv 1 password 'McPoopin'
+submit
+
+follow "Logout"
+
+url /

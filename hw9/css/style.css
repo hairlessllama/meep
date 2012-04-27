@@ -1,0 +1,48 @@
+body
+{
+background-color:#000000;
+color:#DFF5E6;
+
+}
+h1
+{
+color:#FFFFFF;
+text-align:center;
+}
+h2
+{
+color:#FFFFFF;
+text-align:center;
+}
+h3
+{
+color:#FFFFFF;
+text-align:center;
+}
+p
+{
+font-family:"Times New Roman";
+font-size:20px;
+color:#DFF5E6;
+text-align:center;
+}
+a:link {color:#7DE3FF;}    /* unvisited link */
+a:visited {color:#5997C9;} /* visited link */
+a:hover {color:#FFFFFF;}   /* mouse over link */
+a:active {color:#FFFFF;}  /* selected link */
+a
+{
+text-decoration:none
+}
+.reflectBelow	
+{ 
+-webkit-box-reflect:below -15px
+-webkit-gradient(linear, left top, left bottom, from(transparent),
+color-stop(0.5, transparent), to(white)); 
+}
+.reflectBelow2	
+{ 
+-webkit-box-reflect:below -10px
+-webkit-gradient(linear, left top, left bottom, from(transparent),
+color-stop(0.4, transparent), to(white)); 
+}

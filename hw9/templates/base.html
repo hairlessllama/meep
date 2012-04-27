@@ -1,0 +1,21 @@
+<html>
+<head>
+
+    <link rel="stylesheet" href="/style" type="text/css" media="screen" charset="utf-8" />
+
+
+{% block head %}
+<title>{% block title %}MeepApp{% endblock title %}</title>
+{% endblock %}
+</head>
+<body>
+<center>
+<h1 class="reflectBelow">Welcome <i style = "color:red;">Human</i>!</h1>
+{% block body %}
+{% endblock %}
+<hr >
+<a href='../../'>Return to Main Page</a>
+</center>
+
+</body>
+</html>
